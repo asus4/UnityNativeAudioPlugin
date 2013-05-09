@@ -1,0 +1,4 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "Unity Native Audio Plugin";
+NSHumanReadableCopyright = "© Kayac.inc, 2013";
