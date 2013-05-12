@@ -10,12 +10,12 @@ public class Test : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		NativeAudioPlugin.Instance.Start(0);
-		NativeAudioPlugin.Instance.OnNativeAudioIn += HandleOnNativeAudioIn;
+		NativeAudioPlugin.Instance.StartAudio(0);
+//		NativeAudioPlugin.Instance.OnNativeAudioIn += HandleOnNativeAudioIn;
 	}
 
 	void OnDisable() {
-		NativeAudioPlugin.Instance.OnNativeAudioIn -= HandleOnNativeAudioIn;
+//		NativeAudioPlugin.Instance.OnNativeAudioIn -= HandleOnNativeAudioIn;
 		NativeAudioPlugin.Instance.Stop();
 	}
 
@@ -31,11 +31,11 @@ public class Test : MonoBehaviour {
 		string log="";
 		for(int i=0; i<channels; i++) {
 			channel_volume[i] /= (len/channels);
-			log += string.Format("[Channel {0} Volume {1}]",i, channel_volume[i]);
+//			log += string.Format("[Channel {0} Volume {1}]",i, channel_volume[i]);
 		}
 
 		channel_volume = null;
 
-		Debug.Log(log);
+//		Debug.Log(log);
 	}
 }

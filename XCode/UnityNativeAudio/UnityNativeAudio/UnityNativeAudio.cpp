@@ -14,19 +14,32 @@ struct UserData {
     unsigned int channels;
 };
 
-RtAudio *audio = 0;
-UserData data;
-NativeAudioCallback callbackFunc = 0;
+static RtAudio *audio = 0;
+static UserData data;
+static NativeAudioCallback callbackFunc = 0;
+
+static MY_TYPE *audioBuffer;
+static unsigned int currentBufferIndex, fetchedBufferIndex, bufferLength;
+static unsigned long bufferBytes;
+
 
 int input(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
           double streamTime, RtAudioStreamStatus status, void *data) {
     
-    UserData *iData = (UserData *) data;
+//    UserData *iData = (UserData *) data;
     MY_TYPE *buffer = (MY_TYPE*) inputBuffer;
 
     if(callbackFunc != 0) {
-        callbackFunc(iData->channels, (unsigned int)iData->bufferBytes, buffer);
+//        callbackFunc(iData->channels, (unsigned int)iData->bufferBytes, buffer);
     }
+    
+    // copy buffer
+    memcpy(&audioBuffer[currentBufferIndex], buffer, bufferBytes);
+    currentBufferIndex += bufferBytes;
+    if(currentBufferIndex >= bufferLength-bufferBytes) {
+        currentBufferIndex = 0;
+    }
+    
     return 0;
 }
 
@@ -90,9 +103,9 @@ void listDevices() {
 }
 
 
-int startNativeAudio(int inDeviceId, NativeAudioCallback callback) {
+int startNativeAudio(int inDeviceId, unsigned int channels, NativeAudioCallback callback) {
     if(getAudioDeviceCount() < 1) {
-        return -1; // has error
+        return -1;
     }
     // stop before
     stopNativeAudio();
@@ -112,7 +125,9 @@ int startNativeAudio(int inDeviceId, NativeAudioCallback callback) {
     
     unsigned int bufferFrames = _BUFFER_FRAMES;
     unsigned int sampleRate = _SAMPLE_RATE;
-    unsigned int channels = deviceInfo.inputChannels;
+    if(channels > deviceInfo.inputChannels) {
+        channels = deviceInfo.inputChannels;
+    }
     
     // make input parameters
     RtAudio::StreamParameters iParams;
@@ -124,16 +139,27 @@ int startNativeAudio(int inDeviceId, NativeAudioCallback callback) {
     RtAudio::StreamOptions options;
 //    options.flags |= RTAUDIO_NONINTERLEAVED;
     
+    
+    bufferBytes = bufferFrames * channels * sizeof(MY_TYPE);
+    
+    // TODO
+    bufferLength = channels * _SAMPLE_RATE;
+    currentBufferIndex = 0;
+    audioBuffer = (MY_TYPE*)malloc(bufferLength * sizeof(MY_TYPE));
+    if(audioBuffer == NULL) {
+        stopNativeAudio();
+        return -1;
+    }
+    
     try {
         audio->openStream(NULL, &iParams, RT_FORMAT, sampleRate, &bufferFrames, &input, (void*)&data, &options);
     }
     catch (RtError& e) {
         std::cout << e.getMessage() << std::endl;
         stopNativeAudio();
-        return 1;
+        return -1;
     }
-    
-    data.bufferBytes = bufferFrames * channels * sizeof(MY_TYPE);
+    data.bufferBytes = bufferBytes;
     data.channels = channels;
     
     try {
@@ -142,9 +168,11 @@ int startNativeAudio(int inDeviceId, NativeAudioCallback callback) {
     catch (RtError& e) {
         std::cout << e.getMessage() << std::endl;
         stopNativeAudio();
+        return -1;
     }
     
     return 0; // success
+    
 }
 
 void stopNativeAudio() {
@@ -158,6 +186,29 @@ void stopNativeAudio() {
     
     audio = 0;
     callbackFunc = 0;
+    bufferBytes = 0;
+    
+    free(audioBuffer);
+    currentBufferIndex = 0;
+    fetchedBufferIndex = 0;
+    bufferLength = 0;
+}
+
+int getAudioBuffer(MY_TYPE *buffer) {
+    if(currentBufferIndex == fetchedBufferIndex) {
+        // no more cashed buffer
+        return 1;
+    }
+    
+    int bufferIndex = currentBufferIndex;
+    memcpy(buffer , &audioBuffer[bufferIndex], bufferBytes);
+    fetchedBufferIndex += bufferBytes;
+    if(fetchedBufferIndex >= bufferLength-bufferBytes) {
+        fetchedBufferIndex = 0;
+    }
+    
+    // has cashed buffer
+    return 0;
 }
 
 const char* getAudioDeviceName(unsigned int deviceId) {

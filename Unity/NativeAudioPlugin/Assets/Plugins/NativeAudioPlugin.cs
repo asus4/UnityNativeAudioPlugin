@@ -12,21 +12,20 @@ namespace NativeAudio {
 	/// <summary>
 	/// Native audio plugin.
 	/// </summary>
-	public class NativeAudioPlugin {
+	public class NativeAudioPlugin : MonoBehaviour {
 
 #region singleton
-		static NativeAudioPlugin instance = new NativeAudioPlugin();
-
-		// private
-		NativeAudioPlugin() { 
-		}
-
-		~NativeAudioPlugin() {
-			this.Stop();
-		}
+		static NativeAudioPlugin instance;
 
 		public static NativeAudioPlugin Instance {
-			get {return instance;}
+			get {
+				if(instance == null) {
+					GameObject go = new GameObject(typeof(NativeAudioPlugin).ToString());
+					instance = go.AddComponent<NativeAudioPlugin>();
+					DontDestroyOnLoad(go);
+				}
+				return instance;
+			}
 		}
 #endregion
 
@@ -49,6 +48,27 @@ namespace NativeAudio {
 		}
 #endregion
 
+#region lyfecycle
+		void OnDisable() {
+			this.Stop();
+		}
+
+		void Update() {
+			if(audio_buffer == null) {
+				return;
+			}
+
+//			Debug.Log("update():"+getBufferFrames());
+//			return;
+			while(getAudioBuffer(ref audio_buffer[0]) == 0) {
+			//Debug.Log("getaudiobuffer:" + getAudioDeviceCount());
+				if(OnNativeAudioIn != null) {
+					OnNativeAudioIn(2, ref audio_buffer);
+				}
+			}
+		}
+#endregion
+
 #region public
 		/// <summary>
 		/// Occurs when on native audio in.
@@ -59,7 +79,7 @@ namespace NativeAudio {
 		/// Start Mic Input Streaming
 		/// </summary>
 		/// <param name="deviceId">Device identifier.</param>
-		public void Start(int deviceId) {
+		public void StartAudio(int deviceId) {
 			if(isStart) {
 				Debug.LogError("Native Audio Plugin : already running.");
 				return;
@@ -83,7 +103,7 @@ namespace NativeAudio {
 			IntPtr funcPtr = Marshal.GetFunctionPointerForDelegate(callback);
 
 			// start audio
-			int success = startNativeAudio(deviceId, funcPtr);
+			int success = startNativeAudio(deviceId, 2, funcPtr);
 			if(success == 0) {
 				Debug.Log("NativeAudio started");
 			}
@@ -95,8 +115,8 @@ namespace NativeAudio {
 		/// <summary>
 		/// Start with systm default device
 		/// </summary>
-		public void Start() {
-			Start(-1); // start with default device
+		public void StartAudio() {
+			StartAudio(-1); // start with default device
 		}
 
 		/// <summary>
@@ -123,8 +143,9 @@ namespace NativeAudio {
 #endregion
 
 #region DllImport
-		[DllImport ("UnityNativeAudio")] private static extern int startNativeAudio(int deviceId, IntPtr callback);
+		[DllImport ("UnityNativeAudio")] private static extern int startNativeAudio(int deviceId, uint channels, IntPtr callback);
 		[DllImport ("UnityNativeAudio")] private static extern void stopNativeAudio();
+		[DllImport ("UnityNativeAudio")] private static extern int getAudioBuffer(ref short buffer);
 		[DllImport ("UnityNativeAudio")] private static extern string getAudioDeviceName(uint deviceId);
 		[DllImport ("UnityNativeAudio")] private static extern uint getAudioDeviceCount();
 		[DllImport ("UnityNativeAudio")] private static extern uint getDefaultAudioDevice();

@@ -15,14 +15,16 @@ typedef signed short MY_TYPE;
 
 #define _BUFFER_FRAMES 512
 #define _SAMPLE_RATE 44100
+//#define _SAMPLE_RATE 22050
 
 // channels, bufferBytes, buffer
 typedef void (*NativeAudioCallback)(unsigned int channels, unsigned int bufferBytes, MY_TYPE*buffer);
 
 extern "C"
 {
-    int startNativeAudio(int deviceId, NativeAudioCallback callback); // return success or not
+    int startNativeAudio(int deviceId, unsigned int channels, NativeAudioCallback callback); // return success or not
     void stopNativeAudio();
+    int getAudioBuffer(MY_TYPE *buffer);
     
     const char* getAudioDeviceName(unsigned int deviceId);
     unsigned int getAudioDeviceCount();

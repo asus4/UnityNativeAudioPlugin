@@ -22,7 +22,7 @@ void callback(unsigned int channels, unsigned int b, signed short* buffer) {
 
 int mic_process() {
     char input;
-    int error = startNativeAudio(0, &callback);
+    int error = startNativeAudio(0, 2, &callback);
     
     if(error == 0) {
         std::cout << "Success to Start." << std::endl;
@@ -42,22 +42,32 @@ int mic_process() {
 
 int main(int argc, const char * argv[])
 {
-    if(mic_process() != 0) return 1;
-    if(mic_process() != 0) return 1;
+ //   if(mic_process() != 0) return 1;
+//    if(mic_process() != 0) return 1;
+
     std::cout << "\nbufferframes:" << getBufferFrames() << std::endl;
     std::cout << "\nchannels:" << getAudioInputChannels(0) << std::endl;
     
+    MY_TYPE *buffer = (MY_TYPE*)malloc(_BUFFER_FRAMES * 2 * sizeof(MY_TYPE));
+    
     //char input;
     int i=0;
-    int error = startNativeAudio(0, &callback);
+    int error = startNativeAudio(0, 2, &callback);
     if(error) {
         std::cout << "error start" << std::endl;
         return 1;
     }
-    while (i < 5) {
-        sleep(1);
-        std::cout << "off:" << i << std::endl;
-        //std::cin.get(input);
+    
+    struct timespec treq, trem;
+    treq.tv_sec = 0;
+    treq.tv_nsec = 10 * 1000000 ; // 10 mill sec
+    
+    while (i < 200) { // 2sec
+        nanosleep(&treq, &trem);
+        while(getAudioBuffer(buffer) == 0) {
+            std::cout <<  i << ":" << buffer << std::endl;
+        }
+        callback(2, 512, buffer);
         i++;
     }
     stopNativeAudio();
