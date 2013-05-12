@@ -6,7 +6,7 @@ namespace NativeAudio {
 
 	/// <summary>
 	/// Native audio delegate.
-	/// </summary>
+	/// </summary>	
 	public delegate void NativeAudioDelegate(uint channels, ref Int16[] buffer);
 
 	/// <summary>
@@ -14,24 +14,59 @@ namespace NativeAudio {
 	/// </summary>
 	public class NativeAudioPlugin {
 
-#region privates
-		// delegate from Native Plugin
-		delegate void NativeAudioCallback(uint channels, uint bufferBytes, IntPtr buffer);
-		static GCHandle fpHandle; // function pointer
-		static Int16[] audio_buffer;
+#region singleton
+		static NativeAudioPlugin instance = new NativeAudioPlugin();
+
+		// private
+		NativeAudioPlugin() { 
+		}
+
+		~NativeAudioPlugin() {
+			this.Stop();
+		}
+
+		public static NativeAudioPlugin Instance {
+			get {return instance;}
+		}
 #endregion
 
-#region static public
+#region privates
+		// delegate from Native Plugin
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)] // important!!
+		delegate void NativeAudioCallback(uint channels, uint bufferBytes, IntPtr buffer);
+		GCHandle fpHandle; // function pointer
+		Int16[] audio_buffer;
+		int buffer_length;
+		static bool isStart = false;
+
+		// delegate
+		void OnNativeAudioCallback(uint channels, uint bufferBytes, IntPtr buffer) {
+			Debug.Log("a");
+//			Marshal.Copy(buffer, audio_buffer, 0, buffer_length);
+			if(OnNativeAudioIn != null) {
+				//OnNativeAudioIn(channels, ref audio_buffer);
+			}
+		}
+#endregion
+
+#region public
 		/// <summary>
 		/// Occurs when on native audio in.
 		/// </summary>
-		static public event NativeAudioDelegate OnNativeAudioIn;
+		public event NativeAudioDelegate OnNativeAudioIn;
 
 		/// <summary>
 		/// Start Mic Input Streaming
 		/// </summary>
 		/// <param name="deviceId">Device identifier.</param>
-		public static void Start(int deviceId) {
+		public void Start(int deviceId) {
+			if(isStart) {
+				Debug.LogError("Native Audio Plugin : already running.");
+				return;
+			}
+
+			isStart = true;
+			Application.runInBackground = true;
 
 			// set default device if minus
 			if(deviceId < 0) {
@@ -39,46 +74,46 @@ namespace NativeAudio {
 			}
 
 			// initialize audio_buffer
-			int buffer_length = (int) getBufferFrames() * (int) getAudioInputChannels((uint)deviceId);
+			buffer_length = (int) getBufferFrames() * (int) getAudioInputChannels((uint)deviceId);
 			audio_buffer = new Int16[buffer_length];
 
 			// delegate
-			NativeAudioCallback onAudioCallback = (uint channels, uint bufferBytes, IntPtr buffer) => {
-				Marshal.Copy(buffer, audio_buffer, 0, buffer_length);
+			NativeAudioCallback callback = OnNativeAudioCallback;
+			fpHandle = GCHandle.Alloc(callback, GCHandleType.Pinned);
+			IntPtr funcPtr = Marshal.GetFunctionPointerForDelegate(callback);
 
-				if(OnNativeAudioIn != null) {
-					OnNativeAudioIn(channels, ref audio_buffer);
-				}
-			};
-
-			fpHandle = GCHandle.Alloc(onAudioCallback);
-			IntPtr func = Marshal.GetFunctionPointerForDelegate(onAudioCallback);
-
-			// default audio
-			startNativeAudio(deviceId, func);
-			Debug.Log("started");
+			// start audio
+			int success = startNativeAudio(deviceId, funcPtr);
+			if(success == 0) {
+				Debug.Log("NativeAudio started");
+			}
+			else {
+				Debug.LogError("failed start");
+			}
 		}
 
 		/// <summary>
 		/// Start with systm default device
 		/// </summary>
-		public static void Start() {
+		public void Start() {
 			Start(-1); // start with default device
 		}
 
 		/// <summary>
 		/// Stop audio streaming
 		/// </summary>
-		public static void Stop() {
+		public void Stop() {
+			Debug.Log("stop start");
 			stopNativeAudio();
 			Debug.Log("stoped");
 			fpHandle.Free();
+			isStart = false;
 		}
 
 		/// <summary>
 		/// Lists all device.
 		/// </summary>
-		public static void ListAllDevice() {
+		public void ListAllDevice() {
 			uint count = getAudioDeviceCount();
 			Debug.Log("AUDIO DEVICE LIST");
 			for(uint i=0; i<count; i++) {

@@ -5,18 +5,18 @@ using NativeAudio;
 
 public class Test : MonoBehaviour {
 
-	void Start() {
-		NativeAudioPlugin.ListAllDevice();
+	void Awake() {
+		NativeAudioPlugin.Instance.ListAllDevice();
 	}
 
 	void OnEnable() {
-		NativeAudioPlugin.Start(0);
-		NativeAudioPlugin.OnNativeAudioIn += HandleOnNativeAudioIn;
+		NativeAudioPlugin.Instance.Start(0);
+		NativeAudioPlugin.Instance.OnNativeAudioIn += HandleOnNativeAudioIn;
 	}
 
 	void OnDisable() {
-		NativeAudioPlugin.OnNativeAudioIn -= HandleOnNativeAudioIn;
-		NativeAudioPlugin.Stop();
+		NativeAudioPlugin.Instance.OnNativeAudioIn -= HandleOnNativeAudioIn;
+		NativeAudioPlugin.Instance.Stop();
 	}
 
 	void HandleOnNativeAudioIn (uint channels, ref Int16[] buffer)

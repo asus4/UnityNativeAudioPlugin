@@ -16,15 +16,17 @@ struct UserData {
 
 RtAudio *audio = 0;
 UserData data;
-NativeAudioCallback callbackFunc;
+NativeAudioCallback callbackFunc = 0;
 
 int input(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
           double streamTime, RtAudioStreamStatus status, void *data) {
     
-    UserData *iData = (UserData *) data;    
+    UserData *iData = (UserData *) data;
     MY_TYPE *buffer = (MY_TYPE*) inputBuffer;
 
-    callbackFunc(iData->channels, (unsigned int)iData->bufferBytes, buffer);
+    if(callbackFunc != 0) {
+        callbackFunc(iData->channels, (unsigned int)iData->bufferBytes, buffer);
+    }
     return 0;
 }
 
@@ -86,7 +88,6 @@ void listDevices() {
         }
     }
 }
-
 
 
 int startNativeAudio(int inDeviceId, NativeAudioCallback callback) {
@@ -154,7 +155,9 @@ void stopNativeAudio() {
         audio->closeStream();
     }
     delete audio;
+    
     audio = 0;
+    callbackFunc = 0;
 }
 
 const char* getAudioDeviceName(unsigned int deviceId) {

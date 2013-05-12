@@ -1,9 +1,8 @@
 //
 //  NativeAudioPlugin.h
-//  TestRtAudio
 //
 //  Created by asus4 on 2013/05/08.
-//  Copyright (c) 2013 Koki Ibukuro. All rights reserved.
+//  Copyright (c) 2013 Koki Ibukuro.
 //
 
 #pragma once
