@@ -114,6 +114,24 @@ namespace NativeAudio {
 		public void Start() {
 			Start(-1, 2); // start with default device
 		}
+		
+		/// <summary>
+		/// Start with device name and channels.
+		/// </summary>
+		/// <param name="name">Name.</param>
+		/// <param name="channels">Channels.</param>
+		public void Start(string name, uint channels) {
+			uint count = DeviceCount;
+			int deviceID = -1;
+
+			for(int i=0; i<count; i++) {
+				if (name == GetDeviceName ((uint)i)) {
+					deviceID = i;
+					break;
+				}
+			}
+			Start(deviceID, channels);
+		}
 
 		/// <summary>
 		/// Stop audio streaming
@@ -143,6 +161,17 @@ namespace NativeAudio {
 				Debug.Log(string.Format("[{0}] : {1}", i, getAudioDeviceName(i)));
 			}
 		}
+
+		public uint DeviceCount {
+			get {
+				return getAudioDeviceCount();
+			}
+		}
+
+		public string GetDeviceName(uint deviceId) {
+			return getAudioDeviceName (deviceId);
+		}
+
 #endregion
 
 #region DllImport

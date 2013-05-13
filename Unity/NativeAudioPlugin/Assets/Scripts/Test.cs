@@ -10,7 +10,8 @@ public class Test : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		NativeAudioPlugin.Instance.Start(1,2);
+//		NativeAudioPlugin.Instance.Start(1,2); // start with device ID
+		NativeAudioPlugin.Instance.Start("Apple Inc.: Built-in Microphone", 2); // start with name
 	}
 
 	void OnDisable() {
