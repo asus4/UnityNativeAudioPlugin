@@ -8,9 +8,11 @@ public class AudioGraph : MonoBehaviour {
 	public int channel = 0;
 	GLGrapher grapher;
 
+	volatile int total = 0;
+	volatile int count = 0;
+
 	void Start() {
 		grapher = GetComponent<GLGrapher>();
-
 	}
 
 	void OnEnable() {
@@ -21,20 +23,27 @@ public class AudioGraph : MonoBehaviour {
 		NativeAudioPlugin.Instance.OnNativeAudioIn -= HandleOnNativeAudioIn;
 	}
 
+	void Update() {
+		if (total != 0) {
+			grapher.AddValue (total / 32767.0f / count);
+		} else {
+			grapher.AddValue (0);
+		}
+		total = 0;
+		count = 0;
+	}
 	
 	void HandleOnNativeAudioIn (uint channels, ref short[] buffer)
 	{
 		uint i;
 		int len=buffer.Length;
 
-		for(i=0; i<len; i+=channels) {
-			grapher.AddValue(buffer[i] / 32767.0f);
-			//grapher.AddValue(r.Next(-32000, 32000));
-			//grapher.AddValue((float)r.NextDouble());
+		short a;
+		for(i = (uint)channel; i<len; i+=channels) {
+			a = buffer [i];
+			total += a;
+			count++;
 		}
-
-		//Debug.Log ("add");
-
 	}
 
 }

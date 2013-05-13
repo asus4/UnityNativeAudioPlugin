@@ -25,7 +25,6 @@ public class GLGrapher : GLDrawerBase {
 
 	protected override void OnDraw ()
 	{
-
 		if(values.Count < 2) {
 			return;
 		}
@@ -34,8 +33,8 @@ public class GLGrapher : GLDrawerBase {
 		GL.Color (color);
 		
 		float v, x;
-		lock(values) {
-		for (int i=1; i<values.Count; ++i) {
+//		lock(values) {
+		for (int i=1; i<values.Count; i++) {
 			x = ((i-1f)/maxCount-0.5f) * scale.x;
 			v = values[i-1] * scale.y;
 			GL.Vertex (new Vector3(x,v,0)+offset);
@@ -43,18 +42,16 @@ public class GLGrapher : GLDrawerBase {
 			v = values[i] * scale.y;
 			GL.Vertex (new Vector3(x,v,0)+offset);
 		}
-		}
+//		}
 		GL.End ();
 
 	}
 
 	public void AddValue(float value) {
-		lock (values){
-			values.Add(value);
+		values.Add(value);
 
-			while(values.Count > maxCount) {
-				values.RemoveAt(0);
-			}
+		while(values.Count > maxCount) {
+			values.RemoveAt(0);
 		}
 	}
 

@@ -22,7 +22,7 @@ typedef void (*NativeAudioCallback)(unsigned int channels, unsigned int bufferBy
 
 extern "C"
 {
-    int startNativeAudio(int deviceId, unsigned int channels, NativeAudioCallback callback); // return success or not
+    int startNativeAudio(int deviceId, unsigned int channels); // return success or not
     void stopNativeAudio();
     int getAudioBuffer(MY_TYPE *buffer);
     
@@ -34,5 +34,7 @@ extern "C"
 
     unsigned int getSampleRate();
     unsigned int getBufferFrames();
-
+    
+    
+    void listDevices();
 }

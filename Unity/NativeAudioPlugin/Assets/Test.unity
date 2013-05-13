@@ -74,47 +74,6 @@ NavMeshSettings:
     widthInaccuracy: 16.666666
     heightInaccuracy: 10
   m_NavMesh: {fileID: 0}
---- !u!1 &91804583
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 91804584}
-  - 114: {fileID: 91804585}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &91804584
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 91804583}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 424376368}
---- !u!114 &91804585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 91804583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42a2aab7e2271428686816f405eadf67, type: 3}
-  m_Name: 
-  color: {r: 0, g: 0, b: 0, a: 1}
-  maxCount: 0
-  scale: {x: 1, y: 1}
-  offset: {x: 0, y: 0, z: 0}
 --- !u!1 &105008838
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,6 +167,59 @@ MonoBehaviour:
   mat: {fileID: 2100000, guid: 75cd3d15f23fd42ec9d387ab5d078773, type: 2}
   drawers: []
   antiAliasing: 2
+--- !u!1 &114537303
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 114537304}
+  - 114: {fileID: 114537306}
+  - 114: {fileID: 114537305}
+  m_Layer: 0
+  m_Name: graphL
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &114537304
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 114537303}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 424376368}
+--- !u!114 &114537305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 114537303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68c50ec26dcb94718839beefaffc2bf8, type: 3}
+  m_Name: 
+  channel: 0
+--- !u!114 &114537306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 114537303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42a2aab7e2271428686816f405eadf67, type: 3}
+  m_Name: 
+  color: {r: 1, g: 1, b: 1, a: 1}
+  maxCount: 1024
+  scale: {x: 10, y: 128}
+  offset: {x: 0, y: 0, z: 0}
 --- !u!1 &424376367
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,7 +247,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 938481271}
-  - {fileID: 91804584}
+  - {fileID: 114537304}
   m_Father: {fileID: 0}
 --- !u!114 &424376369
 MonoBehaviour:
@@ -258,7 +270,7 @@ GameObject:
   - 114: {fileID: 938481272}
   - 114: {fileID: 938481273}
   m_Layer: 0
-  m_Name: graph
+  m_Name: graphR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -271,7 +283,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 938481270}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: -2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 424376368}
@@ -286,8 +298,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42a2aab7e2271428686816f405eadf67, type: 3}
   m_Name: 
   color: {r: 1, g: 1, b: 1, a: 1}
-  maxCount: 44100
-  scale: {x: 9.46000004, y: 2.1400001}
+  maxCount: 1024
+  scale: {x: 10, y: 128}
   offset: {x: 0, y: 0, z: 0}
 --- !u!114 &938481273
 MonoBehaviour:
@@ -299,4 +311,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68c50ec26dcb94718839beefaffc2bf8, type: 3}
   m_Name: 
-  channel: 0
+  channel: 1

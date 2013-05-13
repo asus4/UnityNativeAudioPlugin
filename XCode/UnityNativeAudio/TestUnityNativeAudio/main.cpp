@@ -22,7 +22,7 @@ void callback(unsigned int channels, unsigned int b, signed short* buffer) {
 
 int mic_process() {
     char input;
-    int error = startNativeAudio(0, 2, &callback);
+    int error = startNativeAudio(0, 2);
     
     if(error == 0) {
         std::cout << "Success to Start." << std::endl;
@@ -42,17 +42,24 @@ int mic_process() {
 
 int main(int argc, const char * argv[])
 {
+    listDevices();
+    
+//    return 0;
+    
+    int deviceID = 1;
+    unsigned int channels = 3;
+    
+    
  //   if(mic_process() != 0) return 1;
 //    if(mic_process() != 0) return 1;
 
     std::cout << "\nbufferframes:" << getBufferFrames() << std::endl;
-    std::cout << "\nchannels:" << getAudioInputChannels(0) << std::endl;
+    std::cout << "\nchannels:" << getAudioInputChannels(deviceID) << std::endl;
     
-    MY_TYPE *buffer = (MY_TYPE*)malloc(_BUFFER_FRAMES * 2 * sizeof(MY_TYPE));
+    MY_TYPE *buffer = (MY_TYPE*)malloc(_BUFFER_FRAMES * channels * sizeof(MY_TYPE));
     
-    //char input;
     int i=0;
-    int error = startNativeAudio(0, 2, &callback);
+    int error = startNativeAudio(deviceID, channels);
     if(error) {
         std::cout << "error start" << std::endl;
         return 1;
@@ -67,14 +74,14 @@ int main(int argc, const char * argv[])
         while(getAudioBuffer(buffer) == 0) {
             std::cout <<  i << ":" << buffer << std::endl;
         }
-        callback(2, 512, buffer);
+        callback(channels, 512, buffer);
         i++;
     }
     stopNativeAudio();
     
     std::cout << "finished:" << i << std::endl;
     
-    
+    free(buffer);
     return 0;
 }
 

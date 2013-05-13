@@ -16,7 +16,6 @@ struct UserData {
 
 static RtAudio *audio = 0;
 static UserData data;
-static NativeAudioCallback callbackFunc = 0;
 
 static MY_TYPE *audioBuffer;
 static unsigned int currentBufferIndex, fetchedBufferIndex, bufferLength;
@@ -26,13 +25,8 @@ static unsigned long bufferBytes;
 int input(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
           double streamTime, RtAudioStreamStatus status, void *data) {
     
-//    UserData *iData = (UserData *) data;
     MY_TYPE *buffer = (MY_TYPE*) inputBuffer;
 
-    if(callbackFunc != 0) {
-//        callbackFunc(iData->channels, (unsigned int)iData->bufferBytes, buffer);
-    }
-    
     // copy buffer
     memcpy(&audioBuffer[currentBufferIndex], buffer, bufferBytes);
     currentBufferIndex += bufferBytes;
@@ -103,15 +97,12 @@ void listDevices() {
 }
 
 
-int startNativeAudio(int inDeviceId, unsigned int channels, NativeAudioCallback callback) {
+int startNativeAudio(int inDeviceId, unsigned int channels) {
     if(getAudioDeviceCount() < 1) {
         return -1;
     }
     // stop before
     stopNativeAudio();
-    
-    // set call back
-    callbackFunc = callback;
     
     // create new
     audio = new RtAudio();
@@ -185,7 +176,6 @@ void stopNativeAudio() {
     delete audio;
     
     audio = 0;
-    callbackFunc = 0;
     bufferBytes = 0;
     
     free(audioBuffer);
